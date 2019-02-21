@@ -90,7 +90,8 @@ def zpool_find_errors(pool_name='tank2'):
     return has_errors
 
 def main():
-    zpool_find_errors()
+    errors = zpool_find_errors()
+    print errors
 
 if __name__ == '__main__':
     main()
