@@ -89,9 +89,16 @@ def zpool_find_errors(pool_name='tank2'):
                 break
     return has_errors
 
+def zpool_clear_errors(pool_name='tank2')
+    out = check_output(['/sbin/zpool','clear',pool_name])
+    return out
+
 def main():
     errors = zpool_find_errors()
     print errors
+    if (errors!=0):
+        out = zpool_clear_errors()
+    print out
 
 if __name__ == '__main__':
     main()
