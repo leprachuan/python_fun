@@ -27,18 +27,6 @@ import logging
 import subprocess
 import sys
 
-# Numeric for easy > 0 or == 0 numeric checks
-ZPOOL_HEALTH = {
-    'ONLINE': 0,
-    'DEGRADED': 1,
-    'FAULTED': 2,
-    'OFFLINE': 3,
-    'REMOVED': 4,
-    'UNAVAIL': 5
-    }
-
-METRIC = collections.namedtuple('Metric', ['name', 'value', 'type', 'desc'])
-
 
 # Backported check_output from 2.6
 # From: https://gist.github.com/edufelipe/1027906
@@ -63,16 +51,6 @@ def check_output(*popenargs, **kwargs):
     return output
 
 
-def send_metric(metric, dry_run=False):
-    group = 'zpool'
-    cmd = ('/usr/bin/gmetric --name=%s --value=%s --type=%s --group=%s --tmax=90 --dmax=600 --desc="%s"' %
-           (metric.name, str(metric.value), metric.type, group, metric.desc))
-    log.debug('Running cmd: %s' % cmd)
-    if dry_run is False:
-        try:
-            subprocess.check_call(cmd, shell=True)
-        except subprocess.CalledProcessError as e:
-            log.warn('gmetric sending failed with %i, cmd was: %s' % (e.returncode, cmd))
 
 
 def zpool_list():
@@ -97,7 +75,7 @@ def zpool_list():
     return zpools
 
 
-def zpool_find_errors(pool_name):
+def zpool_find_errors(pool_name=tank2):
     """ There is no property that corresponds cleanly to the errors
     output line from `zpool status`.  Instead the full status command
     is run and anything other than 'no errors' is considered bad. """
@@ -111,67 +89,9 @@ def zpool_find_errors(pool_name):
                 break
     return has_errors
 
-
-def make_metrics(zpool, has_errors):
-    metrics = []
-    metrics.append(METRIC('zpool.%s.capacity' % zpool['name'],
-                          zpool['capacity'], 'double',
-                          'Percentage of pool space used.'))
-    metrics.append(METRIC('zpool.%s.health' % zpool['name'],
-                          zpool['health'], 'uint8',
-                          'The current health of the pool'))
-    metrics.append(METRIC('zpool.%s.errors' % zpool['name'],
-                          has_errors, 'uint8',
-                          'non-zero indicates errors'))
-    return metrics
-
-
-#### Main and Friends
-
-def setup_logging(level):
-    global log
-
-    log = logging.getLogger('zpool-status')
-    formatter = logging.Formatter(' | '.join(['%(asctime)s', '%(name)s',
-                                              '%(levelname)s', '%(message)s']))
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    log.addHandler(ch)
-    lmap = {
-        'CRITICAL': logging.CRITICAL,
-        'ERROR': logging.ERROR,
-        'WARNING': logging.WARNING,
-        'INFO': logging.INFO,
-        'DEBUG': logging.DEBUG,
-        'NOTSET': logging.NOTSET
-        }
-    log.setLevel(lmap[level])
-
-
-def parse_args(argv):
-    parser = optparse.OptionParser()
-    parser.add_option('--log-level',
-                      action='store', dest='log_level', default='WARNING',
-                      choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO',
-                               'DEBUG', 'NOTSET'])
-    parser.add_option('--dry-run',
-                      action='store_true', dest='dry_run', default=False,
-                      help='actually send data via gmetric')
-    return parser.parse_args(argv)
-
-
-def main(argv):
-    (opts, args) = parse_args(argv)
-    setup_logging(opts.log_level)
-    zpools = zpool_list()
-    metrics = []
-    for zpool in zpools:
-        has_errors = zpool_find_errors(zpool['name'])
-        metrics.extend(make_metrics(zpool, has_errors))
-    for metric in metrics:
-        send_metric(metric, dry_run=opts.dry_run)
-
+def main():
+    zpool_find_errors()
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
     
