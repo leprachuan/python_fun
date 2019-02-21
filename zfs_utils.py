@@ -75,7 +75,7 @@ def zpool_list():
     return zpools
 
 
-def zpool_find_errors(pool_name=tank2):
+def zpool_find_errors(pool_name='tank2'):
     """ There is no property that corresponds cleanly to the errors
     output line from `zpool status`.  Instead the full status command
     is run and anything other than 'no errors' is considered bad. """
