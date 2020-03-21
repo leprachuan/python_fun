@@ -1,6 +1,6 @@
 import inotify.adapters
 
-def __main__():
+def main():
 	print("testsing")
 	
 if __name__ == '__main__':
