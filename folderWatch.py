@@ -6,6 +6,7 @@ def main():
 	i.add_watch('/opt/python_fun/test_watch/')
 	
 	for event in i.event_gen():
+		processSignal()
 		processEvent(event)
 		
 def readConfig(config_location):
@@ -21,6 +22,9 @@ def processEvent(event):
 	print("The Event is: ")
 	print(event)
 	#TODO process file event
-
+	
+def processSignals():
+	print("Processing signals...")
+	#TODO process signals.
 if __name__ == '__main__':
 	main()
