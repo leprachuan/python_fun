@@ -16,11 +16,11 @@ def instantiateTaskQueue(queue_config):
 	#TODO setup the RabbitMQ task queue to take file tasks
 	print("______Configuring Task Queue_______")
 	
+
 def processEvent(event):
 	print("The Event is: ")
-    print(event)
+	print(event)
 	#TODO process file event
-	
 
 if __name__ == '__main__':
 	main()
