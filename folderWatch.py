@@ -10,9 +10,11 @@ def main():
 		
 def readConfig(config_location):
 	#TODO read the config from json file provided
+	print("______Processing Config_______")
 	
 def instantiateTaskQueue(queue_config):
 	#TODO setup the RabbitMQ task queue to take file tasks
+	print("______Configuring Task Queue_______")
 	
 def processEvent(event):
 	print("The Event is: ")
